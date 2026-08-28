@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 25px;
+      background: #f5f6f8;
+      color: #222;
+    }
+
+    .contenedor {
+      max-width: 950px;
+      margin: auto;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 30px;
+    }
+
+    .subtitulo {
+      margin-bottom: 25px;
+      color: #666;
+      font-size: 15px;
+    }
+
+    .buscador {
+      width: 100%;
+      padding: 16px 18px;
+      font-size: 17px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      background: white;
+    }
+
+    .buscador:focus {
+      border-color: #555;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+    }
+
+    .resultado-info {
+      margin-top: 15px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .alarma {
+      background: white;
+      margin-top: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      overflow: hidden;
+    }
+
+    .titulo {
+      padding: 17px 18px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .titulo:hover {
+      background: #f0f0f0;
+    }
+
+    .flecha {
+      font-size: 18px;
+      color: #777;
+      flex-shrink: 0;
+    }
+
+    .codigo {
+      font-weight: bold;
+    }
+
+    .descripcion {
+      font-weight: normal;
+    }
+
+    .contenido {
+      display: none;
+      padding: 0 18px 20px 18px;
+      border-top: 1px solid #eee;
+      line-height: 1.5;
+    }
+
+    .etiqueta {
+      display: inline-block;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      padding: 5px 10px;
+      background: #eee;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .campo {
+      margin-bottom: 15px;
+    }
+
+    .campo-titulo {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .actuacion {
+      margin: 0;
+    }
+
+    .sin-resultados {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      text-align: center;
+      color: #666;
+    }
+
+    .limpiar {
+      margin-top: 10px;
+      padding: 8px 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+    }
+
+    .limpiar:hover {
+      background: #eee;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+  <h1>Buscador de alarmas</h1>
+
+  <div class="subtitulo">
+    Buscador de alarmas e incidencias de la PST-200
+  </div>
+
+  <input
+    id="buscador"
+    class="buscador"
+    type="text"
+    placeholder="Escribe el código, nombre de la alarma o palabra clave..."
+    oninput="buscarAlarmas()"
+  >
+
+  <div id="resultadoInfo" class="resultado-info"></div>
+
+  <div id="listaAlarmas"></div>
+
+  <div id="sinResultados" class="sin-resultados">
+    <strong>No se ha encontrado ninguna alarma o incidencia.</strong>
+    <br><br>
+    Comprueba que el texto introducido sea correcto.
+  </div>
+
+</div>
+
+
+<script>
+
+  /*
+   * ============================================================
+   * LISTADO DE ALARMAS E INCIDENCIAS PST-200
+   * ============================================================
+   */
+
+  const alarmas = [
+
+    {
+      codigo: "64",
+      descripcion: "Caída del producto incorrecta.",
+      actuacion: "Verificar que hay producto disponible. Comprobar que las válvulas están abiertas. Si persiste, avisar a Conexiones.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "65",
+      descripcion: "Falta presión de aire.",
+      actuacion: "Comprobar el manómetro (6-7 atm). Verificar que la válvula de aire está abierta. Si persiste, avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "66",
+      descripcion: "Falta rearmar la máquina.",
+      actuacion: "Pulsar el botón de rearme de alarmas. Si no desaparece, consultar el terminal para identificar la causa.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "67",
+      descripcion: "Error en señal del contactor general o bloque lógico de seguridad.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "68",
+      descripcion: "Algún disyuntor desarmado.",
+      actuacion: "Revisar el armario eléctrico y armar los disyuntores que estén en posición OFF. Si se repite, avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "69",
+      descripcion: "Fallo variador en transportador zona de llenado.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "70",
+      descripcion: "Fallo en el variador caña de llenado.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "72",
+      descripcion: "Paro de emergencia en armario pulsado.",
+      actuacion: "Desenclavar el paro de emergencia del armario y pulsar el rearme de emergencia.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "73",
+      descripcion: "Paro de emergencia en pupitre de la llenadora.",
+      actuacion: "Desenclavar el paro de emergencia del pupitre y pulsar el rearme de emergencia.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "74",
+      descripcion: "Error en detectores de posicionamiento de la caña.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "75",
+      descripcion: "1ª fotocélula en transportador inicial desenfocada.",
+      actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "76",
+      descripcion: "2ª fotocélula en final transportador entrada desenfocada.",
+      actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "77",
+      descripcion: "Fotocélula final transportador acumulación entrada desenfocada.",
+      actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "78",
+      descripcion: "Fotocélula en zona llenado desenfocada.",
+      actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "79",
+      descripcion: "Fotocélula en zona tapado desenfocada.",
+      actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "80",
+      descripcion: "Fotocélula en final transportador tapado desenfocada.",
+      actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "81",
+      descripcion: "Fotocélula en final transportador acumulación salida desenfocada.",
+      actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "82",
+      descripcion: "Fotocélula en final transportador salida desenfocada.",
+      actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "83",
+      descripcion: "Valores de receta incorrectos.",
+      actuacion: "Verificar que los parámetros de la receta coinciden con la orden. Si es necesario, corregir o comunicar al supervisor.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "84",
+      descripcion: "Error en tierra automático. Mover envase y reintentar.",
+      actuacion: "Mover ligeramente el envase y volver a intentar. Si persiste, cambiar a tierra manual y usar la pinza.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "85",
+      descripcion: "Imposible tierra automática. Cambiar a manual y usar pinza.",
+      actuacion: "Cambiar a tierra manual. Colocar la pinza de tierra correctamente en el envase.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "86",
+      descripcion: "Fin producto. Esperar confirmación para iniciar barrido.",
+      actuacion: "Confirmar el barrido desde el terminal. Esperar la actuación de Conexiones.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "87",
+      descripcion: "Fin producto. Esperar confirmación para limpieza de tubería.",
+      actuacion: "Confirmar la limpieza desde el terminal. Esperar la actuación de Conexiones.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "88",
+      descripcion: "Esperar confirmación para limpieza de caña.",
+      actuacion: "Seguir el procedimiento de limpieza del Capítulo 9.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "89",
+      descripcion: "SC pide iniciar barrido para finalizar envasado.",
+      actuacion: "Confirmar el barrido desde el terminal.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "90",
+      descripcion: "Error en detectores o electroválvula C.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "91",
+      descripcion: "Error en detectores o electroválvula D.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "92",
+      descripcion: "Error en detectores o electroválvula E.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "93",
+      descripcion: "Error en detectores o electroválvula F.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "94",
+      descripcion: "Error en detectores o electroválvula P1A.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "95",
+      descripcion: "Error en detectores o electroválvula P1B.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "96",
+      descripcion: "Error en detectores o electroválvula P1C.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "97",
+      descripcion: "Error en detectores o electroválvula P2A.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "98",
+      descripcion: "Error en detectores o electroválvula P2B.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "99",
+      descripcion: "Error en detectores o electroválvula RA.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "100",
+      descripcion: "Error en detectores o electroválvula RB.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "101",
+      descripcion: "Tara del envase vacío incorrecta.",
+      actuacion: "Comprobar que el envase está vacío. Si tiene resto, proceder con ENVASE CON PICO (Capítulo 8.6).",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "102",
+      descripcion: "Error en esclavo de red Profibus (Pa, Ps, Pbc).",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "103",
+      descripcion: "Fallo en báscula al iniciar dosificación.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "104",
+      descripcion: "Fallo en variador de caña pigada.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "105",
+      descripcion: "No se detecta caña cerrada.",
+      actuacion: "Avisar a Mantenimiento solo en el caso en el que haya aire. Si no hay aire es normal que salte esta alarma.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "107",
+      descripcion: "Pinza colocada. Retirarla del envase.",
+      actuacion: "Retirar la pinza de tierra del envase para continuar el ciclo.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "108",
+      descripcion: "Fotocélula desenfocada en inicio de transportadores entrada.",
+      actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "109",
+      descripcion: "Error en detector de posicionamiento de curva distribuidor.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "110",
+      descripcion: "Error en detectores o electroválvula G.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "111",
+      descripcion: "Comprobación de PIGs errónea. Cambiar PIGs.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "112",
+      descripcion: "Introducir caña en cono en manual, abrir para limpiar y poner automático.",
+      actuacion: "Seguir el procedimiento de limpieza del Capítulo 9.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "113",
+      descripcion: "Número de envases llenados igual al requerido.",
+      actuacion: "El envasado ha finalizado correctamente. Proceder con barrido y limpieza si es necesario.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "114",
+      descripcion: "Puerta mal cerrada.",
+      actuacion: "Cerrar correctamente la puerta de la zona de llenado.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "115",
+      descripcion: "Fotocélula en carro-curva desenfocada.",
+      actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "116",
+      descripcion: "Condiciones de SC incorrectas para llegada de producto.",
+      actuacion: "Avisar a Conexiones.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "117",
+      descripcion: "Demister lleno.",
+      actuacion: "Operario va el mismo a vaciarlo.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "118",
+      descripcion: "Petición a SAT errónea.",
+      actuacion: "Verificar la receta de carga. Comprobar que el piso y el código de envase son correctos.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "119",
+      descripcion: "Error en detector o movimiento de la cuchara.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "120",
+      descripcion: "Error en movimiento de la caña.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "121",
+      descripcion: "El PIG se está moviendo y no llega a la estación de destino.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "122",
+      descripcion: "Paro de emergencia en transportador distribuidor entrada.",
+      actuacion: "Desenclavar el paro de emergencia y pulsar el rearme de emergencia.",
+      tipo: "Alarma"
+    },
+
+    {
+      codigo: "123",
+      descripcion: "Peso final del envase incorrecto.",
+      actuacion: "Verificar el peso. Si es ligeramente superior, puede aceptarse según criterio. Si es inferior, revisar la receta. Si persiste, ajustar consignas (Capítulo 7.4) o avisar a Mantenimiento.",
+      tipo: "Alarma"
+    },
+
+
+    /* =========================
+       ALARMAS SAT
+       ========================= */
+
+    {
+      codigo: "SAT-208",
+      descripcion: "Elevador. Fallo movimiento aproximación/retroceso.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-209",
+      descripcion: "Elevador. Fallo movimiento empujador.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-210",
+      descripcion: "Descensor. Carrera mínima abajo / Carrera máxima arriba.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-211",
+      descripcion: "Descensor. Error detector cadena.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-212",
+      descripcion: "Descensor. Error en el variador.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-213",
+      descripcion: "Descensor. Fallo movimiento aproximación/retroceso.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-214",
+      descripcion: "Descensor. Fallo movimiento empujador.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-215",
+      descripcion: "Elevador. CL de seguridad de movimiento.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-216",
+      descripcion: "PLC. Error en módulo periferia DP.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-217",
+      descripcion: "No entra contactor general KMG.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-218",
+      descripcion: "Paro de emergencia activado.",
+      actuacion: "Desenclavar el paro de emergencia y pulsar el rearme.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-219",
+      descripcion: "Fallo disyuntores motores Q1..6, Q19..20, QM8F o QM9F.",
+      actuacion: "Revisar el armario eléctrico y armar los disyuntores. Si se repite, avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-220",
+      descripcion: "Fallo variador.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-221",
+      descripcion: "Elevador. Carrera mínima abajo / Carrera máxima arriba.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-222",
+      descripcion: "Elevador. Error detector cadena.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-223",
+      descripcion: "Elevador. Error en el variador.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-224",
+      descripcion: "Descensor. Fallo detector en piso E62.1.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-225",
+      descripcion: "Fallo fotocélula piso 1.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-226",
+      descripcion: "Fallo fotocélula piso 2.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-227",
+      descripcion: "Fallo fotocélula piso 3.",
+      actuacion: "Avisar a Mantenimiento debido a que está a demasiada altura.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-228",
+      descripcion: "Fallo fotocélula piso 4.",
+      actuacion: "Avisar a Mantenimiento debido a que está a demasiada altura.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-229",
+      descripcion: "Fallo fotocélula piso 5.",
+      actuacion: "Avisar a Mantenimiento debido a que está a demasiada altura.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-230",
+      descripcion: "Fallo fotocélula piso 6.",
+      actuacion: "Avisar a Mantenimiento debido a que está a demasiada altura.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-231",
+      descripcion: "Descensor. CL de seguridad de movimiento.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-232",
+      descripcion: "Fallo de movimiento motor cadena piso 1.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-233",
+      descripcion: "Fallo de movimiento motor cadena piso 2.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-234",
+      descripcion: "Fallo de movimiento motor cadena piso 3.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-235",
+      descripcion: "Fallo de movimiento motor cadena piso 4.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-236",
+      descripcion: "Fallo de movimiento motor cadena piso 5.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-237",
+      descripcion: "Fallo de movimiento motor cadena piso 6.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-238",
+      descripcion: "Elevador. Fallo detector en piso E52.6.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma SAT"
+    },
+
+    {
+      codigo: "SAT-239",
+      descripcion: "Puerta abierta o falta presión de aire.",
+      actuacion: "Comprobar presión de aire (6-7 atm). Verificar que las puertas están cerradas.",
+      tipo: "Alarma SAT"
+    },
+
+
+    /* =========================
+       ALARMAS PBC
+       ========================= */
+
+    {
+      codigo: "PBC-0",
+      descripcion: "Desviador en entrada envases grandes defectuoso.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-1",
+      descripcion: "Guía lateral entrada pequeños defectuosa.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-2",
+      descripcion: "Fotocélula final transportador curva desenfocada.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-3",
+      descripcion: "Fotocélula control envases en transportador colector desenfocada.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-4",
+      descripcion: "Fotocélulas final entrada pequeños desenfocada.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-5",
+      descripcion: "Fotocélula desenfocada en desviador entrada grandes.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-6",
+      descripcion: "Error palet escogido para envases en entrada pequeños.",
+      actuacion: "Verificar el tipo de palet seleccionado en el distribuidor.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-7",
+      descripcion: "Error selección palet en 1er tramo entrada grandes.",
+      actuacion: "Verificar el tipo de palet seleccionado en el distribuidor.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-8",
+      descripcion: "Error selección palet en 2º tramo entrada grandes.",
+      actuacion: "Verificar el tipo de palet seleccionado en el distribuidor.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-9",
+      descripcion: "Palet nuevo en zona paletización incorrecto.",
+      actuacion: "Verificar que el palet es el correcto. Si no, retirar y solicitar el palet adecuado.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-10 a PBC-23",
+      descripcion: "Errores en detectores de uñas de distribuidores.",
+      actuacion: "Ver si hay demasiados palets en las uñas y, si no, avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-24",
+      descripcion: "El bidón desapareció del reenvío entrada grandes.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-25",
+      descripcion: "Posible entrada de más de un bidón en reenvío.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-26",
+      descripcion: "Problema con entrada de bidones o bombonas al carro.",
+      actuacion: "Verificar que no hay obstáculos. Si persiste, avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-27",
+      descripcion: "Fotocélula inicio prepaletizado defectuosa.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-28",
+      descripcion: "Fotocélula final prepaletizado defectuosa.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-30",
+      descripcion: "Error en detectores del carro.",
+      actuacion: "Revisar si hay obstáculos.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-31",
+      descripcion: "Error en movimiento del carro.",
+      actuacion: "Revisar si hay obstáculos.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-32",
+      descripcion: "Fotocélula de carro lleno desenfocada.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-33",
+      descripcion: "Cota cargada para movimiento de plato errónea.",
+      actuacion: "Verificar las cotas configuradas en la pantalla de cotas. Corregir si es necesario.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-34",
+      descripcion: "Plato cogió envases y fotocélulas detectan envase en zona de recogida.",
+      actuacion: "Limpiar/revisar fotocélulas o avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-35",
+      descripcion: "Error en detector de vacío del plato.",
+      actuacion: "Comprobar latas o avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-36",
+      descripcion: "Error en detector de alguna pinza (no cierra).",
+      actuacion: "Comprobar pinzas o avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-37",
+      descripcion: "Fallo presión de aire.",
+      actuacion: "Comprobar el manómetro (6-7 atm). Verificar que la válvula de aire está abierta.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-38",
+      descripcion: "Algún disyuntor desarmado.",
+      actuacion: "Revisar el armario eléctrico y armar los disyuntores.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-39",
+      descripcion: "Falta rearmar la máquina.",
+      actuacion: "Pulsar el botón de rearme de alarmas.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-40",
+      descripcion: "Error en señal del contactor general o bloque lógico de seguridad.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-41",
+      descripcion: "Fallo en algún variador.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-42",
+      descripcion: "Paro de emergencia en transportadores de evacuación.",
+      actuacion: "Desenclavar el paro de emergencia y pulsar el rearme.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-43",
+      descripcion: "Paro de emergencia en pupitre de mandos.",
+      actuacion: "Desenclavar el paro de emergencia y pulsar el rearme.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-44",
+      descripcion: "Paro de emergencia en armario.",
+      actuacion: "Desenclavar el paro de emergencia y pulsar el rearme.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-45",
+      descripcion: "Fotocélula desenfocada en zona paletización.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-46",
+      descripcion: "Paro de emergencia en distribuidores.",
+      actuacion: "Desenclavar el paro de emergencia y pulsar el rearme.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-47",
+      descripcion: "Puerta abierta en zona carro espátula.",
+      actuacion: "Cerrar correctamente la puerta.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-48",
+      descripcion: "Plato de pinzas no cogió bien los envases.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-49",
+      descripcion: "Puerta abierta en zona platos.",
+      actuacion: "Cerrar correctamente la puerta.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-50",
+      descripcion: "Error en tope entrada envases 20L metálicos.",
+      actuacion: "Comprobar pinzas o avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-51",
+      descripcion: "Fotocélula desenfocada en final tramo entrada grandes.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-52",
+      descripcion: "Fotocélula desenfocada en largo de cadenas reenvío.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-53",
+      descripcion: "Error en detección o movimiento de cadenas reenvío.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-54",
+      descripcion: "Fotocélula desenfocada en distribuidores.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-55",
+      descripcion: "Error en detectores límites de carrera conjunto platos.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-56",
+      descripcion: "Error en detectores límites de carrera plato vacío.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-57",
+      descripcion: "Error en detectores límites de carrera plato pinza.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-58",
+      descripcion: "Error en guía lateral apoyo envases en carro.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-59",
+      descripcion: "Error en guía lateral posiciona palet en zona paletizado.",
+      actuacion: "Revisar fotocélulas o avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-60",
+      descripcion: "Fotocélula desenfocada en mesa de giro.",
+      actuacion: "Limpiar la fotocélula. Comprobar orientación.",
+      tipo: "Alarma PBC"
+    },
+
+    {
+      codigo: "PBC-61",
+      descripcion: "Error en detección o movimiento giro mesa.",
+      actuacion: "Avisar a Mantenimiento.",
+      tipo: "Alarma PBC"
+    },
+
+
+    /* =========================
+       INCIDENCIAS
+       ========================= */
+
+    {
+      codigo: "INC-01",
+      descripcion: "La caña se cierra durante una limpieza.",
+      causa: "Incidencia durante el ciclo de limpieza.",
+      actuacion: "Intentar abrir nuevamente la caña. Si no es posible, retirar el Copol hacia atrás y repetir el procedimiento de limpieza. Si persiste, avisar a Mantenimiento.",
+      tipo: "Incidencia"
+    },
+
+    {
+      codigo: "INC-02",
+      descripcion: "Doble llenado.",
+      causa: "Inicio de un segundo ciclo de llenado sobre un envase ya llenado.",
+      actuacion: "Colocar la máquina en Manual. Subir la caña. Retirar el producto derramado. Avisar inmediatamente al encargado.",
+      tipo: "Incidencia"
+    },
+
+    {
+      codigo: "INC-03",
+      descripcion: "Copol / Conix no limpio.",
+      causa: "Acumulación de suciedad o restos de producto.",
+      actuacion: "Limpiar con un trapo. Si la suciedad es importante, no abrirlo para evitar contaminación.",
+      tipo: "Incidencia"
+    },
+
+    {
+      codigo: "INC-04",
+      descripcion: "Mezcla accidental de productos.",
+      causa: "Contacto entre productos incompatibles.",
+      actuacion: "Detener inmediatamente la operación. Avisar al encargado. No manipular la instalación hasta recibir instrucciones.",
+      tipo: "Incidencia"
+    },
+
+    {
+      codigo: "INC-05",
+      descripcion: "Conix mal cerrado por la parte inferior.",
+      causa: "Cierre incorrecto del Conix.",
+      actuacion: "Avisar al encargado. Utilizar el kit antiderrame para contener cualquier fuga.",
+      tipo: "Incidencia"
+    },
+
+    {
+      codigo: "INC-06",
+      descripcion: "Fallo de producto.",
+      causa: "Falta de producto en el tanque o válvula cerrada.",
+      actuacion: "Comprobar disponibilidad de producto. Verificar que las válvulas están abiertas. Si no se identifica la causa, avisar a Conexiones.",
+      tipo: "Incidencia"
+    },
+
+    {
+      codigo: "INC-07",
+      descripcion: "Saturación de línea.",
+      causa: "Línea llena de envases.",
+      actuacion: "Esperar a que la línea quede disponible. Si no recupera el funcionamiento normal, avisar al responsable.",
+      tipo: "Incidencia"
+    },
+
+    {
+      codigo: "INC-08",
+      descripcion: "Alarma de báscula (desviación de peso).",
+      causa: "Peso superior o inferior al programado.",
+      actuacion: "Ajustar las consignas autorizadas (Cola de caña, Fino a Grueso, Grueso a Fino) según el procedimiento del Capítulo 7.4. Si la desviación persiste, avisar a Mantenimiento.",
+      tipo: "Incidencia"
+    }
+
+  ];
+
+
+  /*
+   * ============================================================
+   * NORMALIZAR TEXTO
+   * Permite buscar con o sin tildes.
+   * ============================================================
+   */
+
+  function normalizarTexto(texto) {
+
+    return texto
+      .toString()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  }
+
+
+  /*
+   * ============================================================
+   * MOSTRAR ALARMAS
+   * ============================================================
+   */
+
+  function mostrarAlarmas(lista) {
+
+    const contenedor =
+      document.getElementById("listaAlarmas");
+
+    contenedor.innerHTML = "";
+
+    lista.forEach(function(alarma, indice) {
+
+      const elemento =
+        document.createElement("div");
+
+      elemento.className = "alarma";
+
+      let causaHTML = "";
+
+      if (alarma.causa) {
+
+        causaHTML =
+          '<div class="campo">' +
+            '<div class="campo-titulo">Posible causa</div>' +
+            '<div>' + alarma.causa + '</div>' +
+          '</div>';
+
+      }
+
+      elemento.innerHTML =
+
+        '<div class="titulo" onclick="mostrarExplicacion(' +
+        indice +
+        ')">' +
+
+          '<span>' +
+            '<span class="codigo">' +
+              alarma.codigo +
+            '</span>' +
+
+            ' — ' +
+
+            '<span class="descripcion">' +
+              alarma.descripcion +
+            '</span>' +
+          '</span>' +
+
+          '<span id="flecha-' +
+            indice +
+          '" class="flecha">▼</span>' +
+
+        '</div>' +
+
+        '<div id="contenido-' +
+        indice +
+        '" class="contenido">' +
+
+          '<span class="etiqueta">' +
+            alarma.tipo +
+          '</span>' +
+
+          causaHTML +
+
+          '<div class="campo">' +
+            '<div class="campo-titulo">Actuación del operario</div>' +
+            '<div class="actuacion">' +
+              alarma.actuacion +
+            '</div>' +
+          '</div>' +
+
+        '</div>';
+
+      contenedor.appendChild(elemento);
+
+    });
+
+  }
+
+
+  /*
+   * ============================================================
+   * ABRIR / CERRAR ALARMA
+   * ============================================================
+   */
+
+  function mostrarExplicacion(indice) {
+
+    const contenido =
+      document.getElementById("contenido-" + indice);
+
+    const flecha =
+      document.getElementById("flecha-" + indice);
+
+    if (contenido.style.display === "block") {
+
+      contenido.style.display = "none";
+
+      flecha.textContent = "▼";
+
+    } else {
+
+      contenido.style.display = "block";
+
+      flecha.textContent = "▲";
+
+    }
+
+  }
+
+
+  /*
+   * ============================================================
+   * BUSCADOR
+   * ============================================================
+   */
+
+  function buscarAlarmas() {
+
+    const texto =
+      normalizarTexto(
+        document
+          .getElementById("buscador")
+          .value
+          .trim()
+      );
+
+    let resultados;
+
+    if (texto === "") {
+
+      resultados = alarmas;
+
+    } else {
+
+      resultados =
+        alarmas.filter(function(alarma) {
+
+          const codigo =
+            normalizarTexto(alarma.codigo);
+
+          const descripcion =
+            normalizarTexto(alarma.descripcion);
+
+          const actuacion =
+            normalizarTexto(alarma.actuacion);
+
+          const causa =
+            normalizarTexto(alarma.causa || "");
+
+          const tipo =
+            normalizarTexto(alarma.tipo);
+
+          return (
+
+            codigo.includes(texto) ||
+
+            descripcion.includes(texto) ||
+
+            actuacion.includes(texto) ||
+
+            causa.includes(texto) ||
+
+            tipo.includes(texto)
+
+          );
+
+        });
+
+    }
+
+    mostrarAlarmas(resultados);
+
+    const mensaje =
+      document.getElementById("sinResultados");
+
+    const informacion =
+      document.getElementById("resultadoInfo");
+
+    if (resultados.length === 0) {
+
+      mensaje.style.display = "block";
+
+      informacion.textContent = "";
+
+    } else {
+
+      mensaje.style.display = "none";
+
+      informacion.textContent =
+        resultados.length +
+        (
+          resultados.length === 1
+          ? " resultado encontrado"
+          : " resultados encontrados"
+        );
+
+    }
+
+  }
+
+
+  /*
+   * ============================================================
+   * INICIO
+   * ============================================================
+   */
+
+  mostrarAlarmas(alarmas);
+
+  document.getElementById("resultadoInfo").textContent =
+    alarmas.length + " alarmas e incidencias disponibles";
+
+
+</script>
+
+</body>
+</html>
