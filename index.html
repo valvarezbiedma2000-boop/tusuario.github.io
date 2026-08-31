@@ -156,10 +156,10 @@
 
 <div class="contenedor">
 
-  <h1>Buscador de alarmas</h1>
+  <h1>🔍 Buscador de alarmas</h1>
 
   <div class="subtitulo">
-    Buscador de alarmas e incidencias de la PA-30 y PS-200
+    Buscador de alarmas e incidencias de la <strong>PS-200</strong>
   </div>
 
   <input
@@ -187,422 +187,427 @@
 
   /*
    * ============================================================
-   * LISTADO DE ALARMAS E INCIDENCIAS PA-30 Y PS-200
+   * LISTADO DE ALARMAS E INCIDENCIAS PS-200
+   * Basado en el documento "12.2 Alarmas de la PS-200"
    * ============================================================
    */
 
   const alarmas = [
 
+    // ========================
+    // ALARMAS PS-200 (64 a 123)
+    // ========================
+
     {
       codigo: "64",
       descripcion: "Caída del producto incorrecta.",
       actuacion: "Verificar que hay producto disponible. Comprobar que las válvulas están abiertas. Si persiste, avisar a Conexiones.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "65",
       descripcion: "Falta presión de aire.",
       actuacion: "Comprobar el manómetro (6-7 atm). Verificar que la válvula de aire está abierta. Si persiste, avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "66",
       descripcion: "Falta rearmar la máquina.",
       actuacion: "Pulsar el botón de rearme de alarmas. Si no desaparece, consultar el terminal para identificar la causa.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "67",
       descripcion: "Error en señal del contactor general o bloque lógico de seguridad.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "68",
       descripcion: "Algún disyuntor desarmado.",
       actuacion: "Revisar el armario eléctrico y armar los disyuntores que estén en posición OFF. Si se repite, avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "69",
       descripcion: "Fallo variador en transportador zona de llenado.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "70",
       descripcion: "Fallo en el variador caña de llenado.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "72",
       descripcion: "Paro de emergencia en armario pulsado.",
       actuacion: "Desenclavar el paro de emergencia del armario y pulsar el rearme de emergencia.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "73",
       descripcion: "Paro de emergencia en pupitre de la llenadora.",
       actuacion: "Desenclavar el paro de emergencia del pupitre y pulsar el rearme de emergencia.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "74",
       descripcion: "Error en detectores de posicionamiento de la caña.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "75",
       descripcion: "1ª fotocélula en transportador inicial desenfocada.",
       actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "76",
       descripcion: "2ª fotocélula en final transportador entrada desenfocada.",
       actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "77",
       descripcion: "Fotocélula final transportador acumulación entrada desenfocada.",
       actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "78",
       descripcion: "Fotocélula en zona llenado desenfocada.",
       actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "79",
       descripcion: "Fotocélula en zona tapado desenfocada.",
       actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "80",
       descripcion: "Fotocélula en final transportador tapado desenfocada.",
       actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "81",
       descripcion: "Fotocélula en final transportador acumulación salida desenfocada.",
       actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "82",
       descripcion: "Fotocélula en final transportador salida desenfocada.",
       actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "83",
       descripcion: "Valores de receta incorrectos.",
       actuacion: "Verificar que los parámetros de la receta coinciden con la orden. Si es necesario, corregir o comunicar al supervisor.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "84",
       descripcion: "Error en tierra automático. Mover envase y reintentar.",
       actuacion: "Mover ligeramente el envase y volver a intentar. Si persiste, cambiar a tierra manual y usar la pinza.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "85",
       descripcion: "Imposible tierra automática. Cambiar a manual y usar pinza.",
       actuacion: "Cambiar a tierra manual. Colocar la pinza de tierra correctamente en el envase.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "86",
       descripcion: "Fin producto. Esperar confirmación para iniciar barrido.",
       actuacion: "Confirmar el barrido desde el terminal. Esperar la actuación de Conexiones.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "87",
       descripcion: "Fin producto. Esperar confirmación para limpieza de tubería.",
       actuacion: "Confirmar la limpieza desde el terminal. Esperar la actuación de Conexiones.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "88",
       descripcion: "Esperar confirmación para limpieza de caña.",
       actuacion: "Seguir el procedimiento de limpieza del Capítulo 9.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "89",
       descripcion: "SC pide iniciar barrido para finalizar envasado.",
       actuacion: "Confirmar el barrido desde el terminal.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "90",
       descripcion: "Error en detectores o electroválvula C.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "91",
       descripcion: "Error en detectores o electroválvula D.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "92",
       descripcion: "Error en detectores o electroválvula E.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "93",
       descripcion: "Error en detectores o electroválvula F.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "94",
       descripcion: "Error en detectores o electroválvula P1A.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "95",
       descripcion: "Error en detectores o electroválvula P1B.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "96",
       descripcion: "Error en detectores o electroválvula P1C.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "97",
       descripcion: "Error en detectores o electroválvula P2A.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "98",
       descripcion: "Error en detectores o electroválvula P2B.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "99",
       descripcion: "Error en detectores o electroválvula RA.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "100",
       descripcion: "Error en detectores o electroválvula RB.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "101",
       descripcion: "Tara del envase vacío incorrecta.",
       actuacion: "Comprobar que el envase está vacío. Si tiene resto, proceder con ENVASE CON PICO (Capítulo 8.6).",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "102",
       descripcion: "Error en esclavo de red Profibus (Pa, Ps, Pbc).",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "103",
       descripcion: "Fallo en báscula al iniciar dosificación.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "104",
       descripcion: "Fallo en variador de caña pigada.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "105",
       descripcion: "No se detecta caña cerrada.",
       actuacion: "Avisar a Mantenimiento solo en el caso en el que haya aire. Si no hay aire es normal que salte esta alarma.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "107",
       descripcion: "Pinza colocada. Retirarla del envase.",
       actuacion: "Retirar la pinza de tierra del envase para continuar el ciclo.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "108",
       descripcion: "Fotocélula desenfocada en inicio de transportadores entrada.",
       actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "109",
       descripcion: "Error en detector de posicionamiento de curva distribuidor.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "110",
       descripcion: "Error en detectores o electroválvula G.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "111",
-      descripcion: "Comprobación de PIGs errónea. Cambiar PIGs.",
+      descripcion: "Comprobación de pigs errónea. Cambiar pigs.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "112",
       descripcion: "Introducir caña en cono en manual, abrir para limpiar y poner automático.",
       actuacion: "Seguir el procedimiento de limpieza del Capítulo 9.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "113",
       descripcion: "Número de envases llenados igual al requerido.",
       actuacion: "El envasado ha finalizado correctamente. Proceder con barrido y limpieza si es necesario.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "114",
       descripcion: "Puerta mal cerrada.",
       actuacion: "Cerrar correctamente la puerta de la zona de llenado.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "115",
       descripcion: "Fotocélula en carro-curva desenfocada.",
       actuacion: "Limpiar la fotocélula y su reflector. Comprobar que está correctamente orientada.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "116",
       descripcion: "Condiciones de SC incorrectas para llegada de producto.",
       actuacion: "Avisar a Conexiones.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "117",
       descripcion: "Demister lleno.",
       actuacion: "Operario va el mismo a vaciarlo.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "118",
       descripcion: "Petición a SAT errónea.",
       actuacion: "Verificar la receta de carga. Comprobar que el piso y el código de envase son correctos.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "119",
       descripcion: "Error en detector o movimiento de la cuchara.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "120",
       descripcion: "Error en movimiento de la caña.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "121",
-      descripcion: "El PIG se está moviendo y no llega a la estación de destino.",
+      descripcion: "El pig se está moviendo y no llega a la estación de destino.",
       actuacion: "Avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "122",
       descripcion: "Paro de emergencia en transportador distribuidor entrada.",
       actuacion: "Desenclavar el paro de emergencia y pulsar el rearme de emergencia.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
     {
       codigo: "123",
       descripcion: "Peso final del envase incorrecto.",
       actuacion: "Verificar el peso. Si es ligeramente superior, puede aceptarse según criterio. Si es inferior, revisar la receta. Si persiste, ajustar consignas (Capítulo 7.4) o avisar a Mantenimiento.",
-      tipo: "Alarma"
+      tipo: "Alarma PS-200"
     },
 
 
-    /* =========================
-       ALARMAS SAT
-       ========================= */
+    // ========================
+    // ALARMAS SAT-6 (SAT-208 a SAT-239)
+    // ========================
 
     {
       codigo: "SAT-208",
@@ -740,28 +745,28 @@
     {
       codigo: "SAT-227",
       descripcion: "Fallo fotocélula piso 3.",
-      actuacion: "Avisar a Mantenimiento debido a que está a demasiada altura.",
+      actuacion: "Avisar a mantenimiento debido a que está a demasiada altura.",
       tipo: "Alarma SAT"
     },
 
     {
       codigo: "SAT-228",
       descripcion: "Fallo fotocélula piso 4.",
-      actuacion: "Avisar a Mantenimiento debido a que está a demasiada altura.",
+      actuacion: "Avisar a mantenimiento debido a que está a demasiada altura.",
       tipo: "Alarma SAT"
     },
 
     {
       codigo: "SAT-229",
       descripcion: "Fallo fotocélula piso 5.",
-      actuacion: "Avisar a Mantenimiento debido a que está a demasiada altura.",
+      actuacion: "Avisar a mantenimiento debido a que está a demasiada altura.",
       tipo: "Alarma SAT"
     },
 
     {
       codigo: "SAT-230",
       descripcion: "Fallo fotocélula piso 6.",
-      actuacion: "Avisar a Mantenimiento debido a que está a demasiada altura.",
+      actuacion: "Avisar a mantenimiento debido a que está a demasiada altura.",
       tipo: "Alarma SAT"
     },
 
@@ -829,9 +834,9 @@
     },
 
 
-    /* =========================
-       ALARMAS PBC
-       ========================= */
+    // ========================
+    // ALARMAS PBC-200 (PBC-0 a PBC-61)
+    // ========================
 
     {
       codigo: "PBC-0",
@@ -906,7 +911,7 @@
     {
       codigo: "PBC-10 a PBC-23",
       descripcion: "Errores en detectores de uñas de distribuidores.",
-      actuacion: "Ver si hay demasiados palets en las uñas y, si no, avisar a Mantenimiento.",
+      actuacion: "Ver si hay demasiados pales en las uñas y sino, avisar a Mantenimiento.",
       tipo: "Alarma PBC"
     },
 
@@ -976,7 +981,7 @@
     {
       codigo: "PBC-34",
       descripcion: "Plato cogió envases y fotocélulas detectan envase en zona de recogida.",
-      actuacion: "Limpiar/revisar fotocélulas o avisar a Mantenimiento.",
+      actuacion: "Limpiar/revisar fotocelulas o avisar a Mantenimiento.",
       tipo: "Alarma PBC"
     },
 
@@ -1170,9 +1175,9 @@
     },
 
 
-    /* =========================
-       INCIDENCIAS
-       ========================= */
+    // ========================
+    // INCIDENCIAS HABITUALES
+    // ========================
 
     {
       codigo: "INC-01",
